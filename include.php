@@ -54,8 +54,9 @@ $pt_st = value_return('SELECT st.value FROM `project_status` as st, `project_tas
 //project_status
 $p_st = value_return('SELECT st.value FROM `project_status` as st, `project` as pt WHERE st.id=pt.`status` and pt.id='.$project_id);
 
+$dt =value_return(' SELECT DATEDIFF(date_end, date_start) AS days from project_task WHERE `id`='.$project_task_id);
 
-$total = $ar*$pt_st*$p_st;
+$total = $ar*$pt_st*$p_st*dt;
 return $total;
 }
 

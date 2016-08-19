@@ -12,9 +12,7 @@ print '<a href="hgc_design_grant_chart/" class="btn btn-sm btn-primary">Design G
 print '<a href="add_new_project.php" class="btn btn-sm btn-primary">Add New Project</a> | ';
 print '<a href="setup_parameter.php" class="btn btn-sm btn-primary">Setup Effort Factor</a>';
 print'</div>';
-print '<div class="page-header">
-        <h1>Projects </h1>
-      </div>
+print '<div class="page-header"> <h3>Projects / Repositories  </h4>  </div>
 	  
       <div class="row">
         

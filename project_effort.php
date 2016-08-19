@@ -6,8 +6,8 @@ print '  <div id="content">';
 include('sub-header.php');
 
 $project_id = $_GET['pid'];
-$query = "SELECT `id`, `title`, `date_start`, `date_end` FROM `project_task` WHERE `id_project`=".$_GET['pid']."";
-$fieldname=array('ID','Title','Start','End','Effort');
+$query = "SELECT `id`, `title`, `date_start`, `date_end`, `id_person_owner` FROM `project_task` WHERE `id_project`=".$_GET['pid']."";
+$fieldname=array('ID','Title','Start','End', 'Assigned By');
 
 print '<div class="pull-right">';
 print '<a href="hgc_design_grant_chart/" class="btn btn-sm btn-primary">Design Grant Chart for project</a> | ';
@@ -52,7 +52,9 @@ function manual_create_table($query,$fieldname,$id='mytable'){
 	print'<td>'.customdate_format($row[2]).'</td>';
 	print'<td>'.customdate_format($row[3]).'</td>';
 	
-	print '  <td>'.effort_calculation($row[0]).'</td>';
+	print'<td><a href="person_details.php?person_id='.$row[4].'">'.mysql_fetch_array_nullsafe("SELECT concat( cr.`firstname`,' ', cr.`lastname`,' (',`email`,')') as info  FROM `contact_person` as cr WHERE `id`=".$row[4])[0].'</a></td>';
+	print'<td><a href="see_history.php?task_id='.$row[0].'">History</a></td>';
+	//print '  <td>'.effort_calculation($row[0]).'</td>';
 	print' </tr>';
 	
 	}

@@ -4,18 +4,17 @@ print '  <div id="content">';
 //start framework
 include('sub-header.php');
 
-$project_id = $_GET['pid'];
-
+$task_id = $_GET['task_id'];
+$project_id = mysql_fetch_array_nullsafe('SELECT `id_project` FROM `project_task` WHERE `id`='.$task_id.'')[0];
 print '<div class="pull-right">';
 print '<a href="hgc_design_grant_chart/" class="btn btn-sm btn-primary">Design Grant Chart for project</a> | ';
-print '<a href="add_new_project.php" class="btn btn-sm btn-primary">Add New Project</a> | ';
+print '<a href="see_history.php?task_id='.$task_id.'" class="btn btn-sm btn-primary">See Task History</a> | ';
 print '<a href="index.php" class="btn btn-sm btn-primary">Go to Dashboard</a>';
 print'</div>';
-print '<div class="page-header">
-        <h1>Projects : '.value_return('SELECT `title` FROM `project` WHERE `id`='.$_GET['pid'].'').'</h1>
+print '<div class="page-header"><h1>Task : '.value_return('SELECT `title` FROM `project_task` WHERE `id`='.$task_id.'').'</h1>
       </div>';
 print '<div class="page-header">
-        <h4>Add New Task </h4>
+        <h4>Add New History </h4>
       </div>';
 	  
 	  if(isset($_POST['submit'])){
@@ -31,14 +30,16 @@ print '    <div class="alert alert-error"> Error occured.</div>';
 
 }
 form_start('',$_SERVER['PHP_SELF'].'?pid='.$project_id);
-	  
-input_text('Task Name','task_name');
-input_area('Description','task_desc');
+$person_query = "SELECT cr.`id`, concat(`firstname`,' ', `lastname`,' (',`email`,') - [ ',prole.title,' ]') as info FROM `project_person` as pr,`contact_person` as cr, `project_role` as prole WHERE pr.`id_person`=cr.`id` and prole.id=pr.id_role and  pr.`id_project`=".$project_id;
+input_dropdown_query('Assigned To','task_person',$person_query,1);
 
-input_text('Task Start','task_start');
-input_text('Task End','task_end');
+$activity_query = "SELECT `id`, `title` FROM `project_activity`";
+input_dropdown_query('Activity','task_person',$activity_query,1);
 
-input_text('Estimated Workload(H)','workload');
+$status_query = "SELECT `id`, `title` FROM `project_status`";
+input_dropdown_query('Status','task_person',$status_query,1);
+input_text('Start','hist_start');
+input_text('End','hist_end');
 //$person_query = "SELECT cr.`id`, concat(`firstname`,' ', `lastname`,' (',`email`,') - [ ',prole.title,' ]') as info FROM `project_person` as pr,`contact_person` as cr, `project_role` as prole WHERE pr.`id_person`=cr.`id` and prole.id=pr.id_role and     pr.`id_project`=".$project_id;
 //input_dropdown_query('Assigned To','task_person',$person_query,5);
         

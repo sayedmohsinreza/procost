@@ -160,6 +160,49 @@ print '</select>';
 print '</div></div>';
 
 }
+/*
+*    mysql_fetch_array_nullsafe
+*
+*
+*    get a result row as an enumerated and associated array
+*    ! nullsafe !
+*
+*    parameter:    $result
+*                    $result:    valid db result id
+*
+*    returns:    array | false (mysql:if there are any more rows)
+*
+*/
+function mysql_fetch_array_nullsafe($query) {
+    $ret=array();
+$result = mysql_query($query);
+    $num = mysql_num_fields($result);
+    if ($num==0) return $ret;
+
+    $fval = mysql_fetch_row ($result);
+     if ($fval === false) return false;
+
+    $i=0;
+     while($i<$num)
+        {
+            $fname[$i] = mysql_field_name($result,$i);           
+            $ret[$i] = $fval[$i];            // enum
+            $ret[''.$fname[$i].''] = $fval[$i];    // assoc
+            $i++;
+        }
+
+    return $ret;
+}
+
+function create_vertical_table($fieldname,$data_array,$id='mytable'){
+   print' <table id="'.$id.'" class="table table-bordered table-hover" border="1">';
+   for($i=0;$i<sizeof($fieldname);$i++){
+   print'<tr>';	print'<td><b>'.$fieldname[$i].'</b></td>';	print'<td>'.$data_array[$i].'</td>';
+	print'</tr>';
+	
+	}
+    print'</table>';
+}
 
 
 ?>

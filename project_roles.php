@@ -6,13 +6,13 @@ print '  <div id="content">';
 include('sub-header.php');
 
 $project_id = $_GET['pid'];
-$query = "SELECT `id`, `title`, `date_start`, `date_end` FROM `project_task` WHERE `id_project`=".$_GET['pid']."";
-$fieldname=array('ID','Title','Start','End','Effort');
+$query = "SELECT concat( cr.`firstname`,' ', cr.`lastname`) as info , prole.title,assigned_by, `assinged_time` FROM `project_person` as pr, `contact_person` as cr, `project_role` as prole WHERE prole.id=pr.id_role and cr.id=pr.id_person and pr.id_project=".$_GET['pid']."";
+$fieldname=array('Name','Role','Assigned By','Time (Assigning)');
 
 print '<div class="pull-right">';
 print '<a href="hgc_design_grant_chart/" class="btn btn-sm btn-primary">Design Grant Chart for project</a> | ';
 print '<a href="add_new_task.php?pid='.$project_id.'" class="btn btn-sm btn-primary">Add New Task</a> | ';
-print '<a href="project_roles.php?pid='.$project_id.'" class="btn btn-sm btn-primary">See Project Roles</a> | ';
+print '<a href="assign_role.php?pid='.$project_id.'" class="btn btn-sm btn-primary">Assign Project Role</a> | ';
 print '<a href="index.php" class="btn btn-sm btn-primary">Go to Dashboard</a>';
 print'</div>';
 
@@ -49,10 +49,10 @@ function manual_create_table($query,$fieldname,$id='mytable'){
 	
 	print'<td>'.$row[0].'</td>';
 	print'<td>'.$row[1].'</td>';
-	print'<td>'.customdate_format($row[2]).'</td>';
+	print'<td>'.value_return("SELECT concat( cr.`firstname`,' ', cr.`lastname`,'( ',`email`,')') as info  FROM `contact_person` as cr WHERE `id`=".$row[2]).'</td>';
 	print'<td>'.customdate_format($row[3]).'</td>';
 	
-	print '  <td>'.effort_calculation($row[0]).'</td>';
+	
 	print' </tr>';
 	
 	}

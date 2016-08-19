@@ -1,5 +1,6 @@
 <?php
 include('header.php');
+check_session();
 print '  <div id="content">';
 //start framework
 include('sub-header.php');

@@ -1,5 +1,6 @@
 <?php
 include('header.php');
+check_session();
 print '  <div id="content">';
 //start framework
 include('sub-header.php');
@@ -8,18 +9,31 @@ $project_id = $_GET['pid'];
 
 print '<div class="pull-right">';
 print '<a href="hgc_design_grant_chart/" class="btn btn-sm btn-primary">Design Grant Chart for project</a> | ';
-print '<a href="add_new_project.php" class="btn btn-sm btn-primary">Add New Project</a> | ';
+print '<a href="project_effort.php?pid='.$project_id.'" class="btn btn-sm btn-primary">Project Details</a> | ';
 print '<a href="index.php" class="btn btn-sm btn-primary">Go to Dashboard</a>';
 print'</div>';
 print '<div class="page-header">
-        <h1>Add New Task </h1>
+        <h1>Projects : '.value_return('SELECT `title` FROM `project` WHERE `id`='.$_GET['pid'].'').'</h1>
       </div>';
-	  
+
+
+     if(!value_return('SELECT count(*) FROM `project_person` WHERE `id_project`='.$project_id)){
+print 'No, project roles are found. At first, you have to add roles under this project. <a href="assign_role.php?pid='.$project_id.'" >Click here</a> to add New Project Roles';
+        //end farmework  
+print ' </div>';
+include('footer.php');
+exit;
+      }      
+print '<div class="page-header">
+        <h4>Add New Task </h4>
+      </div>';
+
+
 	  if(isset($_POST['submit'])){
-$query ="INSERT INTO `project` (`id`, `id_person_create`, `date_start`, `date_end`, `title`, `description`, `status`) 
-VALUES (NULL, '0', '".$_POST['pr_start']."', '".$_POST['pr_end']."', '".$_POST['pr_name']."', '".$_POST['pr_desc']."', '".$_POST['pr_status']."');";
+$query ="INSERT INTO `project_task` (`id`, `id_project`, `id_parenttask`, `title`, `description`, `id_person_owner`, `date_start`, `date_end`, `status_id`,`estimated_workload`) 
+VALUES (NULL, '".$project_id."', '0', '".$_POST['task_name']."', '".$_POST['task_desc']."', '1', '".$_POST['task_start']."', '".$_POST['task_end']."','".$_POST['status_id']."', '".$_POST['workload']."');";
 if(mysql_query($query)){
-print '    <div class="alert alert-success">  New Project has been added Successfully .   </div>'; 
+print '    <div class="alert alert-success">  New Taks has been added Successfully .   </div>'; 
 }else{
 print '    <div class="alert alert-error"> Error occured.</div>'; 
 }
@@ -27,16 +41,19 @@ print '    <div class="alert alert-error"> Error occured.</div>';
 
 
 }
-form_start();	  
+form_start('',$_SERVER['PHP_SELF'].'?pid='.$project_id);
 	  
 input_text('Task Name','task_name');
 input_area('Description','task_desc');
 
-input_text('Task Start','task_start');
-input_text('Task End','task_end');
-input_dropdown('Task Status','task_status',array('On','Off'));
-$person_query = "SELECT cr.`id`, concat(`firstname`,' ', `lastname`,' (',`email`,') - [ ',prole.title,' ]') as info FROM `project_person` as pr,`contact_person` as cr, `project_role` as prole WHERE pr.`id_person`=cr.`id` and prole.id=pr.id_role and     pr.`id_project`=".$project_id;
-input_dropdown_query('Assigned To','task_person',$person_query,5);
+input_date('Task Start','task_start');
+input_date('Task End','task_end');
+print date_dependency('task_start','task_end');
+$status_query = "SELECT `id`, `title` FROM `project_status` ORDER BY `id` DESC";
+input_dropdown_query('Status','status_id',$status_query,1);
+input_text('Estimated Workload(H)','workload');
+//$person_query = "SELECT cr.`id`, concat(`firstname`,' ', `lastname`,' (',`email`,') - [ ',prole.title,' ]') as info FROM `project_person` as pr,`contact_person` as cr, `project_role` as prole WHERE pr.`id_person`=cr.`id` and prole.id=pr.id_role and     pr.`id_project`=".$project_id;
+//input_dropdown_query('Assigned To','task_person',$person_query,5);
         
 print '<div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">

@@ -1,5 +1,6 @@
 <?php
 include('header.php');
+check_session();
 print '  <div id="content">';
 //start framework
 include('sub-header.php');
@@ -15,7 +16,7 @@ print '<div class="page-header">
 	  
 	  if(isset($_POST['submit'])){
 $query ="INSERT INTO `project` (`id`, `id_person_create`, `date_start`, `date_end`, `title`, `description`, `status`) 
-VALUES (NULL, '0', '".$_POST['pr_start']."', '".$_POST['pr_end']."', '".$_POST['pr_name']."', '".$_POST['pr_desc']."', '".$_POST['pr_status']."');";
+VALUES (NULL, ".$_SESSION['id'].", '".$_POST['pr_start']."', '".$_POST['pr_end']."', '".$_POST['pr_name']."', '".$_POST['pr_desc']."', '".$_POST['pr_status']."');";
 if(mysql_query($query)){
 print '    <div class="alert alert-success">  New Project has been added Successfully .   </div>'; 
 }else{
@@ -30,9 +31,9 @@ form_start();
 input_text('Project Name','pr_name');
 input_area('Description','pr_desc');
 
-input_text('Project Start','pr_start');
-input_text('Project End','pr_end');
-input_dropdown('Project Status','pr_status',array('On','Off'));
+input_date('Project Start','pr_start');
+input_date('Project End','pr_end');
+input_dropdown('Project Status','pr_status',array(1=>'On',0=>'Off'));
 
         
 print '<div class="form-group">

@@ -1,15 +1,44 @@
 <?php
+function lau ($arr){
+print('<pre>');
+print_r($arr);
+die;
+
+}
+
+function check_session(){
+// Inialize session
+session_start();
+// Check, if username session is NOT set then this page will jump to login page
+if (!isset($_SESSION['username'])) {
+if (!isset($_SESSION['password'])) {
+//session_destroy();
+header('Location: login.php');
+exit;
+}
+}
+}
+
+
+
 function create_table($query,$fieldname,$id='mytable'){
 
 
    print' <table id="'.$id.'" class="table table-striped">';
    
-   print'<tr>';
+   print'<thead><tr>';
 	for($i=0;$i<sizeof($fieldname);$i++){
 	print'<th>'.$fieldname[$i].'</th>';
 	}
-	print'</tr>';
+	print'</tr></thead>';
+
+	 print'<tfoot><tr>';
+	for($i=0;$i<sizeof($fieldname);$i++){
+	print'<th>'.$fieldname[$i].'</th>';
+	}
+	print'</tr></tfoot>';
 	
+	print'<tbody>';
 	
 	$result = mysql_query($query);
 	while($row= mysql_fetch_array($result)){
@@ -24,7 +53,7 @@ function create_table($query,$fieldname,$id='mytable'){
 	
 	}
 	
-    print'</table>';
+    print'</tbody></table>';
 
 
 }
@@ -46,18 +75,83 @@ $newDate = date($default_format, strtotime($timestampDate));
 return $newDate;
 }
 
-function effort_calculation($project_task_id){
-$project_id = value_return('SELECT `id_project` FROM `project_task` WHERE `id`='.$project_task_id);
-$ar = value_return('SELECT pr.value FROM `project_activity` as pr, `project_task` as pt WHERE pr.id=pt.`id_activity` and pt.id='.$project_task_id);
-//project task status
-$pt_st = value_return('SELECT st.value FROM `project_status` as st, `project_task` as pt WHERE st.id=pt.`status` and pt.id='.$project_task_id);
-//project_status
-$p_st = value_return('SELECT st.value FROM `project_status` as st, `project` as pt WHERE st.id=pt.`status` and pt.id='.$project_id);
+function effort_calculation($project_task_id,$effort_type='estimate'){
+$history_ids = multiple_value_1column("SELECT`id` FROM `task_history` WHERE `task_id`=".$project_task_id);
 
-$dt =value_return(' SELECT DATEDIFF(date_end, date_start) AS days from project_task WHERE `id`='.$project_task_id);
+//lau($history_ids);
+if(is_array($history_ids)){
+reset($history_ids);
+$i=0;
+while ($i<count($history_ids))
+  {
+  $total += effort_calculation_history($history_ids[$i],$effort_type);
+  $i++;
+  }
+}else{
+$total+=1;
 
-$total = $ar*$pt_st*$p_st*dt;
+}
 return $total;
+}
+
+function effort_calculation_history($project_history_id,$effort_type='estimate'){
+$history_data =mysql_fetch_array_nullsafe("SELECT `id`, `project_id`, `person_id`, `task_id`, `activity_id`, `status_id`, `start_on`, `end_on`, `assigned_by`,closed,closed_at FROM `task_history` WHERE id= ".$project_history_id);
+
+
+//JP Value
+$job_position_value= mysql_fetch_array_nullsafe("SELECT value FROM `contact_jobtype` WHERE `id`=(SELECT `id_jobtype` FROM `contact_person` WHERE `id`=".$history_data['person_id'].")")[0];
+
+// PBR Role value
+$id_roles = mysql_fetch_array_nullsafe("SELECT `id_role` FROM `project_person` WHERE `id_project`=".$history_data['project_id']." and `id_person`=".$history_data['person_id']."");
+if(is_array($id_roles)){
+$id_roles = implode(',',$id_roles);
+$assign_role_value  = mysql_fetch_array_nullsafe("SELECT sum(value) FROM `project_role` WHERE `id` IN (".$id_roles.") " )[0];
+}else{
+  $assign_role_value = 1;
+}
+//Activity Value
+$project_activity_value= mysql_fetch_array_nullsafe("SELECT `value` FROM `project_activity` WHERE `id`=".$history_data['activity_id'])[0];
+//status Value
+$project_status_value= mysql_fetch_array_nullsafe("SELECT `value` FROM `project_status` WHERE `id`=".$history_data['status_id'])[0];
+
+if($effort_type=='estimate'){
+
+//Date Diff Value
+if(date('Y-m-d H:i:s')>$history_data['start_on'] and date('Y-m-d H:i:s')<$history_data['end_on']){
+$date_diff_value = mysql_fetch_array_nullsafe(" SELECT DATEDIFF(end_on, start_on) AS days from task_history WHERE `id`=".$project_history_id)[0];
+
+}else{
+  $date_diff_value = 1;
+}
+}
+
+if($effort_type=='actual'){
+ 
+//Date Diff Value
+if(date('Y-m-d H:i:s')>$history_data['start_on'] ){
+  if($history_data['closed']==0){
+$date_diff_value = mysql_fetch_array_nullsafe(" SELECT DATEDIFF(NOW(), start_on) AS days from task_history WHERE `id`=".$project_history_id)[0];
+}else{
+$date_diff_value = mysql_fetch_array_nullsafe(" SELECT DATEDIFF(closed_at, start_on) AS days from task_history WHERE `id`=".$project_history_id)[0];
+
+}
+
+}else{
+  $date_diff_value = 1;
+}
+}
+
+$total_sum = 
+$job_position_value +
+$assign_role_value +
+$project_activity_value +
+$project_status_value +
+$date_diff_value;
+$total = $job_position_value. "+".$assign_role_value. "+".$project_activity_value. "+".$project_status_value. "+".$date_diff_value. "=".$total_sum;
+//return $total;
+return $total_sum;
+
+return 0;
 }
 
 function set_input_text($title,$message){
@@ -128,9 +222,9 @@ print '<select name='.$name.' class="'.$class.'"> ';
 reset($arr);
 while (list($key, $val) = each($arr)){
 if($value==$val){
-print '<option value="'.$val.'" selected="selected" >'.$val.'</option>';
+print '<option value="'.$key.'" selected="selected" >'.$val.'</option>';
 }else{
-print '<option value="'.$val.'">'.$val.'</option>';
+print '<option value="'.$key.'">'.$val.'</option>';
 }
 }
 print'</select>';
@@ -160,6 +254,300 @@ print '</select>';
 print '</div></div>';
 
 }
+/*
+*    mysql_fetch_array_nullsafe
+*
+*
+*    get a result row as an enumerated and associated array
+*    ! nullsafe !
+*
+*    parameter:    $result
+*                    $result:    valid db result id
+*
+*    returns:    array | false (mysql:if there are any more rows)
+*
+*/
+function mysql_fetch_array_nullsafe($query) {
+    $ret=array();
+	   $result = mysql_query($query);
+     
+    if(mysql_num_rows($result)==0)
+    return 1;
+
+    $num = mysql_num_fields($result);
+    if ($num==0) return $ret;
+
+    $fval = mysql_fetch_row ($result);
+     if ($fval === false) return false;
+
+    $i=0;
+     while($i<$num)
+        {
+            $fname[$i] = mysql_field_name($result,$i);           
+            $ret[$i] = $fval[$i];            // enum
+            $ret[''.$fname[$i].''] = $fval[$i];    // assoc
+            $i++;
+        }
+
+    return $ret;
+}
+
+function create_vertical_table($fieldname,$data_array,$id='mytable'){
+   print' <table id="'.$id.'" class="table table-bordered table-hover" border="1">';
+   for($i=0;$i<sizeof($fieldname);$i++){
+   print'<tr>';	print'<td><b>'.$fieldname[$i].'</b></td>';	print'<td>'.$data_array[$i].'</td>';
+	print'</tr>';
+	
+	}
+    print'</table>';
+}
 
 
+function input_date($label,$name,$value='',$class='',$size=10,$help='',$required=false,$print='T'){
+if($required==false)$required='';else $required='required';
+if($class=='')$class='form-control';
+$label_size = 12 - $size;
+$return_value =  '<div class="form-group">
+    <label for="'.$name.'" class="col-sm-'.$label_size.' control-label">'.$label.'</label>
+    <div class="col-sm-'.$size.'">
+<div class="input-group" data-provide="datepicker">
+<input class="'.$class.'" type="text" id="'.$name.'" name="'.$name.'" placeholder="'.$label.'" aria-describedby="helpBlock" value="'.$value.'" '.$required.' readonly>
+<span id="datepicker'.$name.'" class="input-group-btn" >
+        <button class="btn btn-default" type="button">'.icon('calendar').'</button>
+      </span>
+</div>
+<span id="helpBlock" class="help-block">'.$help.'</span>
+</div>
+</div>
+<script type="text/javascript">
+$(document).ready(function() {
+
+$("#'.$name.'").datepicker({
+	format: \'yyyy-mm-dd\'
+});
+});
+</script >
+';
+
+if($print=='T')print $return_value; else return $return_value;
+
+}
+
+function date_dependency($date_1,$date_2){
+
+return '
+<script type="text/javascript">
+$(document).ready(function() {
+var nowTemp = new Date();
+var now = new Date(nowTemp.getFullYear(), nowTemp.getMonth(), nowTemp.getDate(), 0, 0, 0, 0);
+ 
+var checkin = $(\'#'.$date_1.'\').datepicker({
+  onRender: function(date) {
+    return date.valueOf() < now.valueOf() ? \'disabled\' : \'\';
+  }
+}).on(\'changeDate\', function(ev) {
+  if (ev.date.valueOf() > checkout.date.valueOf()) {
+    var newDate = new Date(ev.date)
+    newDate.setDate(newDate.getDate() + 1);
+    checkout.setValue(newDate);
+  }
+  checkin.hide();
+  $(\'#'.$date_2.'\')[0].focus();
+}).data(\'datepicker\');
+var checkout = $(\'#'.$date_2.'\').datepicker({
+  onRender: function(date) {
+    return date.valueOf() <= checkin.date.valueOf() ? \'disabled\' : \'\';
+  }
+}).on(\'changeDate\', function(ev) {
+  checkout.hide();
+}).data(\'datepicker\');
+});
+</script >
+';
+
+}
+
+
+function datatable($tableid='',$order_cloumn_no=0,$order_type='asc'){
+if($tableid=='')$tableid='mytable';
+print '<script type="text/javascript"> 
+$(document).ready(function() {
+$(\'#'.$tableid.'\').DataTable({
+"lengthMenu": [[10, 25, 50,100 ,-1], [10, 25, 50,100, "All"]],
+"order": [[ '.$order_cloumn_no.', "'.$order_type.'" ]]
+});
+});
+</script>';
+}
+
+/*
+<div class="alert alert-success" role="alert">...</div>
+<div class="alert alert-info" role="alert">...</div>
+<div class="alert alert-warning" role="alert">...</div>
+<div class="alert alert-danger" role="alert">...</div>
+*/
+function alert_div_message($message,$class='info'){
+print '<div class="alert alert-'.$class.'" role="alert">'.$message.'</div>';
+
+}
+
+function mysql_insert_array ($my_table, $my_array) { 
+    $keys = array_keys($my_array); 
+    $values = array_values($my_array); 
+    $sql = 'INSERT INTO ' . $my_table . '(' . implode(',', $keys) . ') VALUES ("' . implode('","', $values) . '")'; 
+    return(mysql_query($sql)); 
+}
+
+//1 column several row
+function multiple_value_1column($query){
+  $value=array();
+  $result= mysql_query($query);
+  while($row = mysql_fetch_array($result))
+  {
+
+  array_push($value,$row[0]);
+  }
+  //$value=mysql_result($result,0);
+  return $value;
+  
+  }
+
+  //1 row several column return
+function multiple_value_1row($query){
+  $value=array();
+  $result= mysql_query($query);
+  while($row = mysql_fetch_array($result))
+  {
+  $i=0;
+  for($i=0;$i<mysql_num_fields($result);$i++)
+  array_push($value,$row[$i]);
+  
+  }
+  //$value=mysql_result($result,0);
+  return $value;
+}
+
+function status_label_set($id){
+$value = value_return("SELECT `title` FROM `project_status` WHERE `id`=".$id);
+if($id==1)      return '<span class="label label-success">'.$value.'</span>';
+else if($id==2) return '<span class="label label-info">'.$value.'</span>';
+else if($id==3) return '<span class="label label-primary">'.$value.'</span>';
+else if($id==4) return '<span class="label label-warning">'.$value.'</span>';
+else            return '<span class="label label-default">'.$value.'</span>';
+
+}
+
+
+function project_progress_bar($id_project){
+$total = value_return("SELECT count(*) FROM `project_task` WHERE `id_project`=".$id_project);
+if($total==0)$total=1;
+$success_count  = value_return("SELECT count(*) FROM `project_task` WHERE status_id =1 and `id_project`=".$id_project);
+$info_count  = value_return("SELECT count(*) FROM `project_task` WHERE status_id =2 and `id_project`=".$id_project);
+$primary_count  = value_return("SELECT count(*) FROM `project_task` WHERE status_id =3 and `id_project`=".$id_project);
+$warning_count  = value_return("SELECT count(*) FROM `project_task` WHERE status_id =4 and `id_project`=".$id_project);
+
+return '<div class="progress">
+  <div class="progress-bar progress-bar-warning progress-bar-striped" data-toggle="tooltip" data-placement="top" title="'.value_return("SELECT `title` FROM `project_status` WHERE `id`=4").' - '.$warning_count.'/'.$total.'" style="width: '.($warning_count/$total*100).'%">
+    <span class="sr-only">10% Complete (danger)</span>
+  </div>
+  <div class="progress-bar progress-bar-primary progress-bar-striped" data-toggle="tooltip" data-placement="top" title="'.value_return("SELECT `title` FROM `project_status` WHERE `id`=3").' - '.$primary_count.'/'.$total.'" style="width: '.($primary_count/$total*100).'%">
+    <span class="sr-only">20% Complete (warning)</span>
+  </div>
+  <div class="progress-bar progress-bar-info progress-bar-striped" data-toggle="tooltip" data-placement="top" title="'.value_return("SELECT `title` FROM `project_status` WHERE `id`=2").' - '.$info_count.'/'.$total.'" style="width: '.($info_count/$total*100).'%">
+    <span class="sr-only">35% Complete (success)</span>
+  </div>  
+  <div class="progress-bar progress-bar-success progress-bar-striped" data-toggle="tooltip" data-placement="top" title="'.value_return("SELECT `title` FROM `project_status` WHERE `id`=1").' - '.$success_count.'/'.$total.'" style="width: '.($success_count/$total*100).'%">
+    <span class="sr-only">35% Complete (success)</span>
+  </div>
+</div>
+<script>   
+$(function () {
+  $(\'[data-toggle="tooltip"]\').tooltip()
+});
+</script>
+';
+
+}
+
+
+/*
+SelectTableRecords("SELECT * FROM Persons"); //for condition put WHERE clause after table name
+*/
+
+function SelectTableRecords($query){   
+$result = mysql_query ($query);
+$count = 0;
+   $data = array();
+   while ( $row = mysql_fetch_array($result)){
+       $data[$count] = $row;
+  $count++;
+   }
+   return $data;  
+}
+
+/*
+$field['FirstName'] = 'Glenn';
+$field['LastName'] = 'Quagmire';
+$field['Age'] = '33';
+
+InsertInTable("Persons",$field);
+*/
+function InsertInTable($table,&$fields,$success_message ="A Record has been updated successfully .",$error_message = "Error occured.") {
+    $col = "insert into $table (`".implode("` , `",array_keys($fields))."`)";
+    $val = " values('";   
+    foreach($fields as $key => $value) { 
+        $fields[$key] = mysql_escape_string($value);
+    }
+    $val .= implode("' , '",array_values($fields))."');";   
+    $fields = array();
+if(mysql_query($col.$val)){
+print '    <div class="alert alert-success"> '. $success_message.'   </div>'; 
+}else{
+print '    <div class="alert alert-danger"> '. $error_message.' Error description: ' . mysql_error().'.</div>'; 
+}
+}
+/*
+$field['Age'] = '36';
+UpdateTable("Persons",$field," FirstName= 'Glenn'");
+*/
+function UpdateTable($table,&$fields,$condition,$success_message ="A Record has been updated successfully .",$error_message = "Error occured.") {
+    
+    $sql = "update $table set ";
+    foreach($fields as $key => $value) { 
+        $fields[$key] = " `$key` = '".mysql_escape_string($value)."' ";
+    }
+    $sql .= implode(" , ",array_values($fields))." where ".$condition.";";  
+    $fields = array();
+if(mysql_query($sql)){
+print '    <div class="alert alert-success"> '. $success_message.'   </div>'; 
+}else{
+print '    <div class="alert alert-danger"> '. $error_message.' Error description: ' . mysql_error().'.</div>'; 
+}
+}
+
+/*
+DeleteRecord("DELETE FROM Persons WHERE LastName = 'Griffin'");
+*/
+function DeleteRecord($query,$success_message ="A Record has been deleted successfully .",$error_message = "Error occured.") {
+    $result = mysql_query ($query);
+    if(mysql_query($sql)){
+print '    <div class="alert alert-success"> '. $success_message.'   </div>'; 
+}else{
+print '    <div class="alert alert-danger"> '. $error_message.' Error description: ' . mysql_error().'.</div>'; 
+} 
+}
+//$buttons[] = array('link'=>'index.php','text'=>'Go to Dashboard','icon'=>'plus','class'=>'primary');
+//$buttons[] = array('link'=>'my_task.php','text'=>'Go to Dashboard','icon'=>'plus','class'=>'primary');
+function button_menu_create($buttons){
+$rand_class = array ('primary','success','warning','danger');
+$rand_icon = array ('plus','edit','asterisk','wrench','home');
+print '<div class="pull-right">';
+ foreach($buttons as $key => $value) { 
+  if(!isset($value['class'])){$class =$rand_class[rand(0,count($rand_class)-1)]; }else{$class = $value['class'];}
+  if(!isset($value['icon'])){$icon =$rand_icon[rand(0,count($rand_icon)-1)]; }else{$icon = $value['icon'];}
+print '<a href="'.$value['link'].'" class="btn btn-sm btn-'.$class.'"><span class="glyphicon glyphicon-'.$icon.'" aria-hidden="true"></span> '.$value['text'].'</a> | ';
+      }
+print'</div>';
+
+}
 ?>

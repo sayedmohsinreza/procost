@@ -1,6 +1,7 @@
 <?Php
 
 include('header.php');
+check_session();
 print '  <div id="content">';
 //start framework
 include('sub-header.php');
@@ -22,6 +23,7 @@ print '<div class="page-header">
       <div class="row">
         <div>';
 		manual_create_table($query,$fieldname,'mytable');
+		datatable();
         print '</div>';
 
 
@@ -34,13 +36,19 @@ function manual_create_table($query,$fieldname,$id='mytable'){
 
    print' <table id="'.$id.'" class="table table-striped">';
    
-   print'<tr>';
+   print'<thead><tr>';
 	for($i=0;$i<sizeof($fieldname);$i++){
 	print'<th>'.$fieldname[$i].'</th>';
 	}
-	print'</tr>';
+	print'</tr></thead>';
+
+	   print'<tfoot><tr>';
+	for($i=0;$i<sizeof($fieldname);$i++){
+	print'<th>'.$fieldname[$i].'</th>';
+	}
+	print'</tr></tfoot>';
 	
-	
+	print '<tbody>';
 	$result = mysql_query($query);
 	while($row= mysql_fetch_array($result)){
 	
@@ -56,7 +64,7 @@ function manual_create_table($query,$fieldname,$id='mytable'){
 	print' </tr>';
 	
 	}
-	
+	print '</tbody>';
     print'</table>';
 
 

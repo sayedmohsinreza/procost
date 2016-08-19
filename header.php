@@ -10,9 +10,15 @@ print '<!DOCTYPE html>
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>Procost Model</title>
 
-	<script src="bootstrap-3.3.6/js/jquery.min.js"></script>
+	  <script src="bootstrap-3.3.6/js/jquery.min.js"></script>
     <!-- Bootstrap -->
     <link href="bootstrap-3.3.6/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Datepicker -->
+    <link href="asset/datepicker/css/datepicker.css" rel="stylesheet">
+
+    <!-- Datatable -->
+    <link rel="stylesheet" type="text/css" href="asset/datatables/css/dataTables.bootstrap.min.css"/>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn\'t work if you view the page via file:// -->
@@ -20,7 +26,7 @@ print '<!DOCTYPE html>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-	// <script> 
+	<script> 
 // $(document).ready(function(){
 		// $("#content").hide()
 		// $("#pb").animate({    width: \'100%\'}, Math.floor((Math.random() * 5000) + 2500), function(){
@@ -28,11 +34,24 @@ print '<!DOCTYPE html>
 		// $("#pb-box").remove()
 		// $("#content").show()
 		// })
-		$("#pb-box").remove()
+		//$("#pb-box").remove()
 // });
-// </script> 
+ </script> 
   </head>
-  <body>';
+  <body>
+<!-- jQuery (necessary for Bootstrap\'s JavaScript plugins) -->
+    <script src="bootstrap-3.3.6/js/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="bootstrap-3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- Date picker-->
+    <script src="asset/datepicker/js/bootstrap-datepicker.js"></script>
+
+    <!-- Data table-->
+    <script type="text/javascript" src="asset/datatables/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="asset/datatables/js/dataTables.bootstrap.min.js"></script>
+
+  ';
 $message = array('Intializing...','Loading...','Digitizing...');
   
   // print '<div class="container">

@@ -1,14 +1,16 @@
 <?php
 include('header.php');
+check_session();
 print '  <div id="content">';
 //start framework
 include('sub-header.php');
 
 $project_id = $_GET['pid'];
+
 print '<div class="pull-right">';
 print '<a href="hgc_design_grant_chart/" class="btn btn-sm btn-primary">Design Grant Chart for project</a> | ';
 print '<a href="add_new_task.php?pid='.$project_id.'" class="btn btn-sm btn-primary">Add New Task</a> | ';
-print '<a href="assign_role.php?pid='.$project_id.'" class="btn btn-sm btn-primary">Assign Project Role</a> | ';
+print '<a href="project_roles.php?pid='.$project_id.'" class="btn btn-sm btn-primary">See Project Roles</a> | ';
 print '<a href="index.php" class="btn btn-sm btn-primary">Go to Dashboard</a>';
 print'</div>';
 print '<div class="page-header">
@@ -20,43 +22,20 @@ print '<div class="page-header">
 if(isset($_POST['assign_role'])){
 if(sizeof($_POST['person'])==0 || sizeof($_POST['role'])==0 ){
  set_input_text('Warning','Please try again and select at least one person and one role');
-print'<p align="left"><a href="assign_role.php" class="btn btn-primary" type="button">Try Again</a></p>';
+print'<p align="left"><a href="'.$_SERVER['PHP_SELF'].'?pid='.$project_id.'" class="btn btn-primary" type="button">Try Again</a></p>';
 
-printfooter();
 exit;
 }else{
 reset($_POST['person']);
 while (list($key, $val) = each($_POST['person'])){
 reset($_POST['role']);
 while (list($key2, $val2) = each($_POST['role'])){
-$assign_query= "INSERT INTO `confpaperrole` (`paperid`, `roleid`, `completed`, `assignerid`) VALUES ('".$val."', '".$val2."', 'F', '0');";
+$assign_query= "INSERT INTO `project_person` (`id`, `id_project`, `id_person`, `id_role`,`assigned_by`, `assinged_time`) 
+VALUES (NULL, '".$project_id."', '".$val."', '".$val2."', '1', CURRENT_TIMESTAMP);";
 if(mysql_query($assign_query)){
 print '<div class="alert alert-success"> person/Paper ID '.$val.' is assigned to role '.$val2.' suceesfully.</div>';
-$paper_title= value_return('SELECT title FROM paper where pid='.$val);
-$info_role = multiple_value_1row('SELECT `username`, `password`, `name`, `email` FROM `confrole` where roleid='.$val2);
-$subject_mail='Greetings from '.$conf_name.': Review System';
-$body_mail='Dear '.$info_role[2].',<br><br>
-We would like to inform you that the <b>'.$conf_name.'</b> Technical Program Committee (TPC) has assigned the following paper(s) to you:<br><br>
-<b>Paper ID: </b>'.$val.'<br>
-<b>Paper Title: </b>'.$paper_title.'<br><br>
-Please log in to our paper review system.<br><br>
-You can log in to <a href="http://'.$_SERVER['SERVER_NAME'].'/proconf2016/review/login.php"> '.$conf_name.' Review System</a> with your <b>username: </b>'.$info_role[0].' . <br> <br>
-
-We are humbly requesting you to complete the review. Your cooperation is essential for the success of the conference and it will be greatly appreciated.<br>
-For More Information please visit <a href="'.$conf_url.'">'.$conf_name.' Website</a> <br>
-Email us to at <a href="mailto:'.$conf_email.'">'.$conf_email.'</a><br><br>
-
-Thank you in advance.<br><br>
-Sincerely<br>
-The '.$conf_name.' Committee';
-
-send_email($conf_email,$info_role[3],$subject_mail,$body_mail,'Mail sent to '.$info_role[3].' successfully.','Mail is not sent. Try again');
-//print $body_mail;
-
-
 }else{
-
-print '<div class="alert alert-error"> person/Paper ID '.$val.' was already assigned role '.$val2.'. </div>';
+print '<div class="alert alert-danger"> person/Paper ID '.$val.' was already assigned role '.$val2.'. </div>';
 }
 //print $assign_query;
 //print 'hello'.$val .'and'  .$val2.'<br>';
@@ -69,8 +48,10 @@ print '<div class="alert alert-error"> person/Paper ID '.$val.' was already assi
 }
 
 
-form_start();
+form_start('',$_SERVER['PHP_SELF'].'?pid='.$project_id);
 set_input_text('Note','Left side contain person name and Right side contain role name');
+set_input_text('Person Structure','(No of assign in <b>all</b> project) (No of assign in <b>current</b> project) Name');
+set_input_text('Role Structure','(No of assign in <b>all</b> project) (No of assign in <b>current</b> project) Role Name');
 set_input_text('Project',value_return('SELECT `title` FROM `project` WHERE `id`='.$project_id));
 
 
@@ -122,12 +103,14 @@ $k=0;
 $result= mysql_query($query);
 while($row = mysql_fetch_array($result)){
 $count_person_query = 'SELECT count(*) FROM `project_person` WHERE `id_person`='.$row[0];
+$count_project_person_query = 'SELECT count(*) FROM `project_person` WHERE id_project = '.$GLOBALS['project_id'].' and`id_person`='.$row[0];
 $count_person = value_return($count_person_query);
+$count_project_person = value_return($count_project_person_query);
 if($value==$row[1]){
-print '<option value="'.$row[0].'"  selected="selected" >('.$count_person.') '.$row[1].'</option>';
+print '<option value="'.$row[0].'"  selected="selected" >('.$count_person.') ('.$count_project_person.') '.$row[1].'</option>';
 $k++;
 }else{
-print '<option value="'.$row[0].'"  '.$mul.'>('.$count_person.') '.$row[1].'</option>';
+print '<option value="'.$row[0].'"  '.$mul.'>('.$count_person.') ('.$count_project_person.')'.$row[1].'</option>';
 $k++;
 }
 }
@@ -152,12 +135,14 @@ $lo=0;
 $result= mysql_query($query);
 while($row = mysql_fetch_array($result)){
 $count_person_query = 'SELECT count(*) FROM `project_person` WHERE `id_role`='.$row[0];
+$count_project_person_query = 'SELECT count(*) FROM `project_person` WHERE id_project= '.$GLOBALS['project_id'].' and `id_role`='.$row[0];
 $count_person = value_return($count_person_query);
+$count_project_person = value_return($count_project_person_query);
 if($value==$row[1]){
-print '<option value="'.$row[0].'"  selected="selected" >('.$count_person.') '.$row[1].'</option>';
+print '<option value="'.$row[0].'"  selected="selected" >('.$count_person.') ('.$count_project_person.') '.$row[1].'</option>';
 $lo++;
 }else{
-print '<option value="'.$row[0].'"  '.$mul.'>('.$count_person.') '.$row[1].'</option>';
+print '<option value="'.$row[0].'"  '.$mul.'>('.$count_person.') ('.$count_project_person.') '.$row[1].'</option>';
 $lo++;
 }
 }

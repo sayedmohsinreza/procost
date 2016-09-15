@@ -7,11 +7,15 @@ include('sub-header.php');
 
 $table_name = $_GET['table'];
 
-print '<div class="pull-right">';
-print '<a href="hgc_design_grant_chart/" class="btn btn-sm btn-primary">Design Grant Chart for project</a> | ';
-print '<a href="index.php" class="btn btn-sm btn-primary">Go to Dashboard</a> | ';
-print '<a href="setup_parameter.php" class="btn btn-sm btn-primary">Setup Effort Factor</a>';
-print'</div>';
+
+
+$button_menu[] = array('link'=>'hgc_design_grant_chart/','text'=>'Design Grant Chart for project');
+$button_menu[] = array('link'=>'index.php','text'=>'Go to Dashboard');
+$button_menu[] = array('link'=>'setup_parameter.php','text'=>'Setup Effort Factor','icon'=>'wrench');
+button_menu_create($button_menu);
+
+
+
 print '<div class="page-header">
         <h1>Setup Job Type </h1>
       </div>';
@@ -40,13 +44,13 @@ print '<div class="alert alert-error">  Have an error. try again. </div>';
 
 
 }
-set_input_text('Note','if submissions have been made or reviewers signed up already, you should only add new track to the end of the list or change a track\'s name to clarify it. If you want to delete a track in the middle of the list, replace its name with N/A or something authors and reviewers will know not to select.');
-input_message('Tracks are used for Chair, co-chair and members to look up some topic when making automated review assignments. Both authors and reviewers are asked to select topics. Enter a sequential list of track below. When you click on Set track, track will be added sequentially regardless of the Track ID listed, with blank track ignored; thus track should only be deleted until a submission has been made or reviewer signed up.');
+set_input_text('Note','Effort Factor');
+input_message('Select your appropriate rules');
 
 //print '<form method="post" action="'.$_SERVER['PHP_SELF'].'" onsubmit="return validate_form(this)">';
 form_start('',$_SERVER['PHP_SELF'].'?table='.$table_name);
-
-
+$rules_arr = array('bayes' => 'Bayesian Rules(Recommended)','flat' => 'Flattian(Not Recommended)' );
+input_dropdown('Select Rules','rules',$rules_arr);
 print '   <table id="param_table" class="table table-striped" >';
  print '<thead><tr><th>ID</th><th>Title</th><th>Value</th></tr> </thead> <tbody>';  
 // Display existing topics
@@ -69,7 +73,7 @@ for ($i=1; $i <= $addRows; $i++) {
 }
 print '  </tbody> </table>';
 
-print '<span onclick="addRow();" style="text-decoration: underline">Add More Rows</span><br>';
+print '<a onclick="addRow();" style="text-decoration: underline" class="btn btn-sm btn-default">'.icon('plus').' Add More Rows</a><br>';
 print '<script language="javascript">
 var title_num = '.($title_num+1).';
 var row = '.$row.';
@@ -95,7 +99,7 @@ function addRow() {
 
 </script>';
 print '  <div class="form-group">
-    <div class="col-sm-offset-2 col-sm-10"><button name="set_title_value" type="submit"  class="btn btn-primary">Set Track</button>
+    <div class="col-sm-offset-2 col-sm-10"><button name="set_title_value" type="submit"  class="btn btn-primary">'.icon('floppy-disk').' Save</button>
 	<a href="index.php" class="btn btn-default"><i class="glyphicon glyphicon-remove-circle"></i> Cancel</a>
     </div>
     </div>

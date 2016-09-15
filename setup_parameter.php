@@ -4,17 +4,16 @@ check_session();
 print '  <div id="content">';
 //start framework
 include('sub-header.php');
-print '<div class="pull-right">';
-print '<a href="hgc_design_grant_chart/" class="btn btn-sm btn-primary">Design Grant Chart for project</a> | ';
-print '<a href="index.php" class="btn btn-sm btn-primary">Go to Dashboard</a>';
-print'</div>';
+
+$button_menu2[] = array('link'=>'hgc_design_grant_chart/','text'=>'Design Grant Chart for project');
+$button_menu2[] = array('link'=>'index.php','text'=>'Go to Dashboard');
+
+button_menu_create($button_menu2);  
+
+
+
+
 print '<div class="row">';
-		
-
-        
-        
-
-
     print '  <div class="page-header">
         <h1>Effort Factor Definition</h1>
       </div>
@@ -108,7 +107,7 @@ function manual_create_table($query,$fieldname,$id='mytable',$edit_link){
 	}
 	
     $table_design .='</table>';
-	$table_design.= '<a href="edit_parameter.php?table='.$edit_link.'" align="center" class="btn btn-sm btn-primary">Edit</a>';
+	$table_design.= '<a href="edit_parameter.php?table='.$edit_link.'" align="center" class="btn btn-sm btn-primary">'.icon('pencil').' Edit</a>';
 
 return $table_design;
 }

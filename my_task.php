@@ -13,7 +13,7 @@ $button_menu[] = array('link'=>'index.php','text'=>'Go to Dashboard','icon'=>'ho
 button_menu_create($button_menu);
 
 $query = "SELECT id,`task_id`, `activity_id`, `status_id`, `start_on`, `end_on`, `assigned_by` FROM `task_history` WHERE `person_id`=".$_SESSION['id']."";
-$fieldname=array('Task','Activity','Status','Start Date', 'Start End', 'Assigned By','Estimated Effort','Actual Effort');
+$fieldname=array('Task','Activity','Status','Start Date', 'Start End', 'Assigned By','Estimated Effort','Actual Effort','');
 
 						
 create_table_person($query,$fieldname);
@@ -50,7 +50,17 @@ include('footer.php');
 	print '<td>'.effort_calculation_history( $row[0]).' </td>';
 	print '<td>'.effort_calculation_history( $row[0],'actual').' </td>';
 	
-	
+	print '<td><div class="btn-group">
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Action <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    <li><a href="edit_history.php?history_id='.$row[0].'" >'.icon('edit').' Edit</a></li>
+    <li><a data-toggle="modal" data-target="#view_modal_'.$row['id'].'">'.icon('book').' View</a></li>
+    <li role="separator" class="divider"></li>
+    <li><a data-toggle="modal" data-target="#delete_modal_'.$row['id'].'">'.icon('trash').' Delete</a></li>
+  </ul>
+</div></td>';
 	print' </tr>';
 	}
 	

@@ -7,15 +7,15 @@ include('sub-header.php');
 
 $project_id = $_GET['pid'];
 
-print '<div class="pull-right">';
-print '<a href="hgc_design_grant_chart/" class="btn btn-sm btn-primary">Design Grant Chart for project</a> | ';
-print '<a href="add_new_task.php?pid='.$project_id.'" class="btn btn-sm btn-primary">Add New Task</a> | ';
-print '<a href="project_roles.php?pid='.$project_id.'" class="btn btn-sm btn-primary">See Project Roles</a> | ';
-print '<a href="index.php" class="btn btn-sm btn-primary">Go to Dashboard</a>';
-print'</div>';
-print '<div class="page-header">
-        <h1>Assign Project Role</h1>
-      </div>';
+
+$button_menu[] = array('link'=>'hgc_design_grant_chart/','text'=>'Design Grant Chart for project');
+$button_menu[] = array('link'=>'add_new_task.php?pid='.$project_id.'','text'=>'Add New Task','icon'=>'plus');
+$button_menu[] = array('link'=>'project_roles.php?pid='.$project_id.'','text'=>'See Project Roles','icon'=>'info-sign');
+$button_menu[] = array('link'=>'index.php','text'=>'Go to Dashboard');
+button_menu_create($button_menu);
+
+
+print page_header('Assign Project Role');
 
 
 

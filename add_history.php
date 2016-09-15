@@ -8,9 +8,9 @@ include('sub-header.php');
 $task_id = $_GET['task_id'];
 $project_id = mysql_fetch_array_nullsafe('SELECT `id_project` FROM `project_task` WHERE `id`='.$task_id.'')[0];
 
-$button_menu[] = array('link'=>'hgc_design_grant_chart/','text'=>'Design Grant Chart for project','icon'=>'plus','class'=>'primary');
-$button_menu[] = array('link'=>'see_history.php?task_id='.$task_id.'','text'=>'See Task History','icon'=>'plus','class'=>'primary');
-$button_menu[] = array('link'=>'index.php','text'=>'Go to Dashboard','icon'=>'plus','class'=>'primary');
+$button_menu[] = array('link'=>'hgc_design_grant_chart/','text'=>'Design Grant Chart for project');
+$button_menu[] = array('link'=>'see_history.php?task_id='.$task_id.'','text'=>'See Task History');
+$button_menu[] = array('link'=>'index.php','text'=>'Go to Dashboard');
 button_menu_create($button_menu);
 
 
@@ -57,7 +57,7 @@ input_date('End','hist_end');
         
 print '<div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
-    <button type="submit" name="submit" id="submit" class="btn btn-primary">Save</button>
+    <button type="submit" name="submit" id="submit" class="btn btn-primary">'.icon('floppy-disk').' Save</button>
     <a href="index.php" class="btn btn-default"><i class="glyphicon glyphicon-remove-circle"></i> Cancel</a>
     </div>
     </div>';

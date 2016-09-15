@@ -1,4 +1,14 @@
 <?php
+
+const THESIS_INFO  = '<b>Thesis Title: </b><i>Activity based new technique of Effort &amp; Cost 
+Estimation using Functional Measurement Type for web application.</i></font></u><br>Supervisor:&nbsp;<a href="http://www.juniv.edu/iit/teachers/" target="_blank" rel="nofollow">Dr. M. Shamim Kaiser</a>, Associate Professor, Institute of Information Technology, Jahangirnagar University.<br>Co-Supervisor:&nbsp;<a href="http://www.juniv.edu/iit/teachers/" target="_blank" rel="nofollow">Shamim al Mamun</a>, Assistant Professor, Institute of Information Technology, Jahangirnagar University.<br>Funding: <a href="http://fellowship.most.gov.bd/" target="_blank" rel="nofollow">National Science &amp; Technology (NST) Fellowship</a> provided by <span><a href="http://www.most.gov.bd/" target="_blank" title="Home" rel="nofollow">Ministry of Science and Technology Government of the People\'s Republic of Bangladesh</a></span>. <br>Research Area: Software Engineering, Software Effort &amp; Cost Model etc&nbsp;<br>
+                        Importance of such Thesis: <a href="https://en.wikipedia.org/wiki/Software_development_effort_estimation" target="_blank" rel="nofollow">Wikipedia</a> | <a href="http://www.gursimransinghwalia.com/Research-Projects.html" target="_blank" rel="nofollow">Professors Research</a> | <a href="http://yunus.hun.edu.tr/~sencer/research.html" target="_blank" rel="nofollow">MS Student research</a> | <a href="http://www.sei.cmu.edu/productlines/frame_report/funding.htm" target="_blank" rel="nofollow">University Funding</a> | <a href="https://nsf.gov/funding/funding_results.jsp?queryText=Software+Engineering" target="_blank" rel="nofollow">USA NSF Funding</a> |<br>';
+
+const BASIC_INFO = 'PROCOST is an enterprise software company that develops products for software developers, project managers, and content management. It is best known for its issue tracking application and its team collaboration and Confluence.';
+
+const HISTORY_INFO = 'Sayed Mohsin Reza founded PROCOST in 2015. The person while studying at the Jahangirnagar University in Dhak. He bootstrapped the project, financing by <a href="http://fellowship.most.gov.bd/" target="_blank" rel="nofollow">National Science &amp; Technology (NST) Fellowship</a> provided by <span><a href="http://www.most.gov.bd/" target="_blank" title="Home" rel="nofollow">Ministry of Science and Technology Government of the People\'s Republic of Bangladesh</a></span> in 2015.';
+
+
 function lau ($arr){
 print('<pre>');
 print_r($arr);
@@ -153,7 +163,9 @@ return $total_sum;
 
 return 0;
 }
-
+function icon($icon_class,$aria_hidden='true'){
+return ' <span class="glyphicon glyphicon-'.$icon_class.'" aria-hidden="'.$aria_hidden.'"></span>';
+}
 function set_input_text($title,$message){
 print '<div class="control-group info">
 <label >
@@ -211,28 +223,29 @@ if($print=='T')print $return_value; else return $return_value;
 
 }
 
-function input_dropdown($label,$name,$arr,$class='',$value='',$size=10){
+function input_dropdown($label,$name,$arr,$class='',$value='',$size=10,$print='T'){
 //in query you must select 2 column first for value and 2nd for show message
+$str='';
 if($class=='')$class='form-control';
 $label_size = 12 - $size;
-print '<div class="form-group">
+$str.=  '<div class="form-group">
     <label for="'.$name.'" class="col-sm-'.$label_size.' control-label">'.$label.'</label>
     <div class="col-sm-'.$size.'">';
-print '<select name='.$name.' class="'.$class.'"> ';
+$str.=   '<select name='.$name.' class="'.$class.'"> ';
 reset($arr);
 while (list($key, $val) = each($arr)){
 if($value==$val){
-print '<option value="'.$key.'" selected="selected" >'.$val.'</option>';
+$str.=   '<option value="'.$key.'" selected="selected" >'.$val.'</option>';
 }else{
-print '<option value="'.$key.'">'.$val.'</option>';
+$str.=   '<option value="'.$key.'">'.$val.'</option>';
 }
 }
-print'</select>';
-print '</div></div>';
+$str.=  '</select>';
+$str.=   '</div></div>';
+if($print=='T')print $str; else return $str;
 }
-function icon($icon_class,$aria_hidden='true'){
-return ' <span class="glyphicon glyphicon-'.$icon_class.'" aria-hidden="'.$aria_hidden.'"></span>';
-}
+
+
 
 function input_dropdown_query($label,$name,$query,$size,$value='',$class='',$input_size=10){
 //in query you must select 2 column first for value and 2nd for show message
@@ -327,6 +340,9 @@ $("#'.$name.'").datepicker({
 });
 });
 </script >
+<style>
+  .datepicker{z-index:1151 !important;}
+</style>
 ';
 
 if($print=='T')print $return_value; else return $return_value;
@@ -373,9 +389,15 @@ if($tableid=='')$tableid='mytable';
 print '<script type="text/javascript"> 
 $(document).ready(function() {
 $(\'#'.$tableid.'\').DataTable({
+   "dom": \'<"col-sm-6"l><"col-sm-6"f><t><"col-sm-5"i><"col-sm-7"p>\',
 "lengthMenu": [[10, 25, 50,100 ,-1], [10, 25, 50,100, "All"]],
-"order": [[ '.$order_cloumn_no.', "'.$order_type.'" ]]
+"order": [[ '.$order_cloumn_no.', "'.$order_type.'" ]],
+buttons: [
+        \'copy\', \'excel\', \'pdf\'
+    ]
 });
+
+    $("div.toolbar").html(\'<b>Custom tool bar! Text/images etc.</b>\');
 });
 </script>';
 }
@@ -386,8 +408,9 @@ $(\'#'.$tableid.'\').DataTable({
 <div class="alert alert-warning" role="alert">...</div>
 <div class="alert alert-danger" role="alert">...</div>
 */
-function alert_div_message($message,$class='info'){
-print '<div class="alert alert-'.$class.'" role="alert">'.$message.'</div>';
+function alert_div_message($message,$class='info',$print='T'){
+$return_value ='<div class="alert alert-'.$class.'" role="alert">'.$message.'</div>';
+if($print=='T')print $return_value; else return $return_value;
 
 }
 
@@ -474,11 +497,11 @@ $(function () {
 SelectTableRecords("SELECT * FROM Persons"); //for condition put WHERE clause after table name
 */
 
-function SelectTableRecords($query){   
+function SelectTableRecords($query, $result_mode = MYSQL_BOTH){   
 $result = mysql_query ($query);
 $count = 0;
    $data = array();
-   while ( $row = mysql_fetch_array($result)){
+   while ( $row = mysql_fetch_array($result,$result_mode)){
        $data[$count] = $row;
   $count++;
    }
@@ -538,7 +561,7 @@ print '    <div class="alert alert-danger"> '. $error_message.' Error descriptio
 }
 //$buttons[] = array('link'=>'index.php','text'=>'Go to Dashboard','icon'=>'plus','class'=>'primary');
 //$buttons[] = array('link'=>'my_task.php','text'=>'Go to Dashboard','icon'=>'plus','class'=>'primary');
-function button_menu_create($buttons){
+function button_menu_create($buttons,$style='1' ){
 $rand_class = array ('primary','success','warning','danger');
 $rand_icon = array ('plus','edit','asterisk','wrench','home');
 print '<div class="pull-right">';
@@ -548,6 +571,63 @@ print '<div class="pull-right">';
 print '<a href="'.$value['link'].'" class="btn btn-sm btn-'.$class.'"><span class="glyphicon glyphicon-'.$icon.'" aria-hidden="true"></span> '.$value['text'].'</a> | ';
       }
 print'</div>';
+
+
+
+
+}
+
+
+
+function create_modal($id, $header,$body,$action_type='save',$form_start_line=''){
+if($form_start_line=='')$form_start_line =form_start('form','','POST','','F');
+
+if($action_type == 'save') $button_code = '<button type="submit" name="save_button" id="save_button" class="btn btn-primary">'.icon('floopy-disk').' Save</button>';
+if($action_type == 'update') $button_code = '<button type="submit" name="update_button" id="update_button" class="btn btn-primary">'.icon('floopy-open').' Update</button>';
+if($action_type == 'view') $button_code = '';
+if($action_type == 'delete') $button_code = '<button type="submit" name="delete_button" id="delete_button" class="btn btn-danger">'.icon('floopy-open').' Confirm Delete</button>';
+
+
+$str = '';
+$str.=  $form_start_line;
+$str.='<div id="'.$id.'" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel_'.$id.'">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel_'.$id.'">'.$header.'</h4>
+      </div>
+      <div class="modal-body">
+        '.$body.'
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+       '.$button_code.'
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->';
+
+$str.= form_end('F');
+return $str;
+}
+
+
+function page_header($text,$tag='h3'){
+return '<div class="page-header"><'.$tag.'>'.$text.' </'.$tag.'></div>';
+}
+
+function input_checkbox_without_label($name,$value='',$message='',$size=10,$help=''){
+$label_size = 12 - $size;
+return  ' <div class="form-group">
+    <div class="col-sm-offset-'.$label_size.' col-sm-'.$size.'">
+      <div class="checkbox">
+<label>
+<input  type="checkbox" id="'.$name.'" name="'.$name.'"  value="'.$value.'">'.$message.'
+</label>
+<span id="helpBlock" class="help-block">'.$help.'</span>
+</div></div>
+  </div>';
 
 }
 ?>

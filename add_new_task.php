@@ -7,18 +7,18 @@ include('sub-header.php');
 
 $project_id = $_GET['pid'];
 
-print '<div class="pull-right">';
-print '<a href="hgc_design_grant_chart/" class="btn btn-sm btn-primary">Design Grant Chart for project</a> | ';
-print '<a href="project_effort.php?pid='.$project_id.'" class="btn btn-sm btn-primary">Project Details</a> | ';
-print '<a href="index.php" class="btn btn-sm btn-primary">Go to Dashboard</a>';
-print'</div>';
-print '<div class="page-header">
-        <h1>Projects : '.value_return('SELECT `title` FROM `project` WHERE `id`='.$_GET['pid'].'').'</h1>
-      </div>';
+
+$button_menu[] = array('link'=>'hgc_design_grant_chart/','text'=>'Design Grant Chart for project');
+$button_menu[] = array('link'=>'project_effort.php?pid='.$project_id.'','text'=>'Project Details','icon'=>'info-sign');
+$button_menu[] = array('link'=>'index.php','text'=>'Go to Dashboard');
+button_menu_create($button_menu);
+
+
+print page_header('Projects : '.value_return('SELECT `title` FROM `project` WHERE `id`='.$_GET['pid'].'').'');
 
 
      if(!value_return('SELECT count(*) FROM `project_person` WHERE `id_project`='.$project_id)){
-print 'No, project roles are found. At first, you have to add roles under this project. <a href="assign_role.php?pid='.$project_id.'" >Click here</a> to add New Project Roles';
+alert_div_message( 'No, project roles are found. At first, you have to add roles under this project. <a href="assign_role.php?pid='.$project_id.'" >Click here</a> to add New Project Roles','danger');
         //end farmework  
 print ' </div>';
 include('footer.php');

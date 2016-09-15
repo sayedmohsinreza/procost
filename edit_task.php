@@ -7,12 +7,17 @@ include('sub-header.php');
 
 $task_id = $_GET['task_id'];
 $task_info = multiple_value_1row("SELECT `id`, `id_project`, `id_parenttask`, `title`, `description`, `id_person_owner`, `date_start`, `date_end`, `status_id`, `estimated_workload` FROM `project_task` WHERE `id`=".$task_id);
-print '<div class="pull-right">';
-print '<a href="hgc_design_grant_chart/" class="btn btn-sm btn-primary">Design Grant Chart for project</a> | ';
-print '<a href="project_effort.php?pid='.$task_info[1].'" class="btn btn-sm btn-primary">Project Details</a> | ';
-print '<a href="see_history.php?task_id='.$task_id.'" class="btn btn-sm btn-primary">See Task History</a> | ';
-print '<a href="index.php" class="btn btn-sm btn-primary">Go to Dashboard</a>';
-print'</div>';
+
+
+
+$button_menu[] = array('link'=>'hgc_design_grant_chart/','text'=>'Design Grant Chart for project');
+$button_menu[] = array('link'=>'project_effort.php?pid='.$task_info[1].'','text'=>'Project Details','icon'=>'info-sign');
+$button_menu[] = array('link'=>'see_history.php?task_id='.$task_id.'','text'=>'See Task History','icon'=>'plus');
+$button_menu[] = array('link'=>'index.php','text'=>'Go to Dashboard');
+button_menu_create($button_menu);
+
+
+
 print '<div class="page-header">
         <h1>Projects : '.value_return('SELECT `title` FROM `project` WHERE `id`='.$task_info[1].'').'</h1>
       </div>';
@@ -53,7 +58,7 @@ input_text('Estimated Workload(H)','workload',$task_info[9]);
         
 print '<div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
-    <button type="submit" name="submit" id="submit" class="btn btn-primary">Update</button>
+    <button type="submit" name="submit" id="submit" class="btn btn-primary">'.icon('pencil').' Update</button>
     <a href="index.php" class="btn btn-default"><i class="glyphicon glyphicon-remove-circle"></i> Cancel</a>
     </div>
     </div>';

@@ -10,17 +10,15 @@ $project_id = $_GET['pid'];
 $query = "SELECT concat( cr.`firstname`,' ', cr.`lastname`) as info , prole.title,assigned_by, `assinged_time` FROM `project_person` as pr, `contact_person` as cr, `project_role` as prole WHERE prole.id=pr.id_role and cr.id=pr.id_person and pr.id_project=".$_GET['pid']."";
 $fieldname=array('Name','Role','Assigned By','Time (Assigning)');
 
-print '<div class="pull-right">';
-print '<a href="hgc_design_grant_chart/" class="btn btn-sm btn-primary">Design Grant Chart for project</a> | ';
-print '<a href="add_new_task.php?pid='.$project_id.'" class="btn btn-sm btn-primary">Add New Task</a> | ';
-print '<a href="assign_role.php?pid='.$project_id.'" class="btn btn-sm btn-primary">Assign Project Role</a> | ';
-print '<a href="index.php" class="btn btn-sm btn-primary">Go to Dashboard</a>';
-print'</div>';
 
-print '<div class="page-header">
-        <h1>Projects : '.value_return('SELECT `title` FROM `project` WHERE `id`='.$_GET['pid'].'').'</h1>
-      </div>
-      <div class="row">
+$button_menu[] = array('link'=>'hgc_design_grant_chart/','text'=>'Design Grant Chart for project');
+$button_menu[] = array('link'=>'add_new_task.php?pid='.$project_id.'','text'=>'Add New Task','icon'=>'plus');
+$button_menu[] = array('link'=>'assign_role.php?pid='.$project_id.'','text'=>'Assign Project Role');
+$button_menu[] = array('link'=>'index.php','text'=>'Go to Dashboard');
+button_menu_create($button_menu);
+
+print page_header('Projects : '.value_return('SELECT `title` FROM `project` WHERE `id`='.$_GET['pid'].'').'');
+      print '<div class="row">
         <div>';
 		manual_create_table($query,$fieldname,'mytable');
 		datatable();

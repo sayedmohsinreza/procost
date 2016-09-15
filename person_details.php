@@ -6,11 +6,10 @@ print '  <div id="content">';
 include('sub-header.php');
 
 $person_id=$_GET['person_id'];
-print '<div class="pull-right">';
-print '<a href="hgc_design_grant_chart/" class="btn btn-sm btn-primary">Design Grant Chart for project</a> | ';
 
-print '<a href="index.php" class="btn btn-sm btn-primary">Go to Dashboard</a>';
-print'</div>';
+$button_menu[] = array('link'=>'hgc_design_grant_chart/','text'=>'Design Grant Chart for project');
+$button_menu[] = array('link'=>'index.php','text'=>'Go to Dashboard');
+button_menu_create($button_menu);
 
 $field=array('Name','email','password','Admin','Active');
 $query = "SELECT concat(`firstname`,' ', `lastname`) as name, `email`,`password`, `is_admin`,`is_active`, `id_person_create`FROM `contact_person` WHERE id = '".$_GET['person_id']."' ";
@@ -43,11 +42,11 @@ $fieldname=array('Project','Role','Assigned By','Time (Assigning)');
             			// }
 						
 create_table_person($query,$fieldname);
-datatable('mytable');
+datatable('mytable3');
 print '</div>';
 include('footer.php');
    
-    function create_table_person($query,$fieldname,$id='mytable'){
+    function create_table_person($query,$fieldname,$id='mytable3'){
     print' <table id="'.$id.'" class="table table-striped">';
    
     print'<thead><tr>';
